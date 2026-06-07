@@ -6,7 +6,7 @@ A minimal Python Telegram bot running on PythonAnywhere (free tier) with persist
 
 **All services used are free. No credit card required.**
 
-> **Live demo:** <a href="https://t.me/vercel_telegram_ed_bot" target="_blank"><img src="https://img.shields.io/badge/Chat%20on-Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" alt="Chat on Telegram"/></a>
+> **Live demo:** <a href="https://t.me/tele_pythonanywhere_bot" target="_blank"><img src="https://img.shields.io/badge/Chat%20on-Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" alt="Chat on Telegram"/></a>
 
 ---
 
@@ -57,8 +57,8 @@ You can have the bot replying to your messages on Telegram in about 10 minutes w
 3. Clone your fork to your computer:
 
 ```bash
-git clone https://github.com/<your-username>/telegram-vercel-bot.git
-cd telegram-vercel-bot
+git clone https://github.com/<your-username>/telegram-pythonanywhere-bot.git
+cd telegram-pythonanywhere-bot
 ```
 
 ---
@@ -159,7 +159,7 @@ If you'd rather understand what the script is doing, do Steps 7–12 manually in
 Open a Bash console from the PA dashboard (Dashboard → **New console** → **Bash**) and run:
 
 ```bash
-git clone https://github.com/<your-github-username>/telegram-vercel-bot.git
+git clone https://github.com/<your-github-username>/telegram-pythonanywhere-bot.git
 ```
 
 ---
@@ -170,7 +170,7 @@ Still in the PA Bash console:
 
 ```bash
 python3.13 -m venv ~/.virtualenvs/telegram-bot
-~/.virtualenvs/telegram-bot/bin/pip install -r ~/telegram-vercel-bot/requirements.txt
+~/.virtualenvs/telegram-bot/bin/pip install -r ~/telegram-pythonanywhere-bot/requirements.txt
 ```
 
 This takes ~1–2 minutes. The virtualenv path `/home/<your-pa-username>/.virtualenvs/telegram-bot` is what you'll point the web app at in Step 10.
@@ -182,7 +182,7 @@ This takes ~1–2 minutes. The virtualenv path `/home/<your-pa-username>/.virtua
 The PA WSGI shim (`pythonanywhere_wsgi.py` in this repo) reads `.env` from the project root, the same way `make run` does locally:
 
 ```bash
-cd ~/telegram-vercel-bot
+cd ~/telegram-pythonanywhere-bot
 nano .env
 ```
 
@@ -212,8 +212,8 @@ Save with `Ctrl+O`, `Enter`, then exit with `Ctrl+X`. `.env` is in `.gitignore`,
 3. Choose **Manual configuration** (not the Flask wizard — that scaffolds a different layout)
 4. Pick **Python 3.13** to match the virtualenv
 5. After the app is created, scroll down on the Web tab and configure:
-   - **Source code:** `/home/<your-pa-username>/telegram-vercel-bot`
-   - **Working directory:** `/home/<your-pa-username>/telegram-vercel-bot`
+   - **Source code:** `/home/<your-pa-username>/telegram-pythonanywhere-bot`
+   - **Working directory:** `/home/<your-pa-username>/telegram-pythonanywhere-bot`
    - **Virtualenv:** `/home/<your-pa-username>/.virtualenvs/telegram-bot`
 
 ---
@@ -225,7 +225,7 @@ Still in the Web tab, click **WSGI configuration file** (the link looks like `/v
 ```python
 import sys
 
-project_home = "/home/<your-pa-username>/telegram-vercel-bot"
+project_home = "/home/<your-pa-username>/telegram-pythonanywhere-bot"
 if project_home not in sys.path:
     sys.path.insert(0, project_home)
 
@@ -245,7 +245,7 @@ If you set `WEBHOOK_URL` in Step 9, the bot auto-registers the webhook the first
 If you'd prefer to register the webhook manually (or skipped `WEBHOOK_URL`), run this from PA's Bash console (it reads `.webhook_secret`, which is auto-generated on first worker boot):
 
 ```bash
-cd ~/telegram-vercel-bot
+cd ~/telegram-pythonanywhere-bot
 curl -X POST "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook" \
   --data-urlencode "url=https://<your-pa-username>.pythonanywhere.com/api/webhook" \
   --data-urlencode "secret_token=$(cat .webhook_secret)" \
@@ -267,7 +267,7 @@ PA free-tier web apps must be renewed every month by clicking a button in the da
 If you ever need to update the bot after pushing new code to GitHub, run this in a PA Bash console:
 
 ```bash
-cd ~/telegram-vercel-bot && git pull && touch /var/www/<your-pa-username>_pythonanywhere_com_wsgi.py
+cd ~/telegram-pythonanywhere-bot && git pull && touch /var/www/<your-pa-username>_pythonanywhere_com_wsgi.py
 ```
 
 (The `touch` forces PA to reload the worker without needing to click Reload in the dashboard.)
@@ -316,7 +316,7 @@ If the secrets aren't set, the workflow skips with a warning instead of failing 
 You don't need to do anything for this to work. The first PA worker boot prints:
 
 ```
-Generated webhook secret at /home/<your-pa-username>/telegram-vercel-bot/.webhook_secret (auto-bootstrap)
+Generated webhook secret at /home/<your-pa-username>/telegram-pythonanywhere-bot/.webhook_secret (auto-bootstrap)
 Webhook registered: https://<your-pa-username>.pythonanywhere.com/api/webhook
 ```
 
@@ -324,7 +324,7 @@ The secret persists across deploys (file lives on PA's disk, outside the git wor
 
 **To override (optional):** set `WEBHOOK_SECRET=<your value>` explicitly in `.env`. The env var wins over the auto-bootstrapped file. Useful if you want to share a known secret across environments.
 
-**To rotate the secret:** in PA's Bash console, `rm ~/telegram-vercel-bot/.webhook_secret` and reload the web app. Boot generates a new one and re-registers with Telegram automatically.
+**To rotate the secret:** in PA's Bash console, `rm ~/telegram-pythonanywhere-bot/.webhook_secret` and reload the web app. Boot generates a new one and re-registers with Telegram automatically.
 
 ---
 
@@ -379,7 +379,7 @@ Reload (or push) for the change to take effect: the list is read at worker boot.
 ## Project structure
 
 ```
-telegram-vercel-bot/
+telegram-pythonanywhere-bot/
 ├── api/
 │   └── index.py          # Entry point — Flask app, webhook route, /api/health, secret verification
 ├── bot/

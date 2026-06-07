@@ -15,7 +15,7 @@ A Telegram bot template built for students. It runs on PythonAnywhere's free tie
 ## Project structure
 
 ```
-telegram-vercel-bot/
+telegram-pythonanywhere-bot/
 ├── api/
 │   └── index.py          # Flask entrypoint — webhook route, /api/health, secret verification
 ├── bot/

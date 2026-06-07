@@ -13,8 +13,7 @@ from bot.preferences import get_provider
 
 # HF Gradio knobs — hardcoded defaults for ArmGPT
 # 80 tokens at ~5 tok/s ≈ 16s. Must finish well inside Telegram's webhook
-# timeout (~60s) accounting for HF cold-start jitter, network round-trips,
-# and the Vercel 60s function cap.
+# timeout (~60s) accounting for HF cold-start jitter and network round-trips.
 HF_LENGTH = 100
 HF_TEMPERATURE = 0.6
 HF_TOP_K = 30
@@ -25,7 +24,7 @@ def _call_main(messages: list, retries: int = AI_RETRIES):
 
     Each attempt is capped by AI_REQUEST_TIMEOUT and the per-attempt timeout
     is dynamically reduced if the wall-clock budget is shrinking, so total
-    elapsed time stays under Vercel's 60s function cap even on the worst path.
+    elapsed time stays under Telegram's ~60s webhook window even on the worst path.
     """
     deadline = time.monotonic() + AI_REQUEST_TIMEOUT * retries + retries
     for attempt in range(retries):

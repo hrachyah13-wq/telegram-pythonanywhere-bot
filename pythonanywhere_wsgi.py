@@ -15,7 +15,7 @@ How to wire this up on PA:
      contents with:
 
          import sys
-         project_home = "/home/<username>/telegram-vercel-bot"
+         project_home = "/home/<username>/telegram-pythonanywhere-bot"
          if project_home not in sys.path:
              sys.path.insert(0, project_home)
          from pythonanywhere_wsgi import application  # noqa: F401
