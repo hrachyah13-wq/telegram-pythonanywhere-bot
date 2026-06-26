@@ -9,18 +9,9 @@ from bot.preferences import get_provider, set_provider
 from bot.rate_limit import is_rate_limited
 from bot.clients import store
 last_bot_reply = {}
-from telebot.types import BotCommand
 
-bot.set_my_commands([
-    BotCommand("start", "Start"),
-    BotCommand("help", "Help"),
-    BotCommand("about", "About"),
-    BotCommand("translate", "Translate last reply"),
-    BotCommand("remember", "Remember something"),
-    BotCommand("recall", "Show memories"),
-    BotCommand("compliment", "Generate compliment"),
-    BotCommand("կատակ", "Generate joke"),
-])
+
+
 
 # Verbose console logging for local dev and teaching. Enabled by
 # BOT_VERBOSE_LOG=1 (run_local.py sets this automatically). Prints one
