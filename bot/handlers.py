@@ -8,7 +8,6 @@ from bot.history import clear_history
 from bot.preferences import get_provider, set_provider
 from bot.rate_limit import is_rate_limited
 from bot.clients import store
-last_bot_reply = {}
 
 # Verbose console logging for local dev and teaching. Enabled by
 # BOT_VERBOSE_LOG=1 (run_local.py sets this automatically). Prints one
@@ -66,7 +65,25 @@ def cmd_start(message):
 
 
 
+<<<<<<< HEAD
 
+=======
+@bot.message_handler(commands=["help"], func=is_allowed)
+def cmd_help(message):
+    lines = [
+        "/start — welcome message",
+        "/help  — show this message",
+        "/reset — clear conversation history",
+        "/about — about this bot",
+        "/compliment [name] — receive a compliment",
+        "/կատակ [car] — get a car joke",
+        "/remember [text] — save information",
+        "/recall — show saved information",
+    ]
+    if HF_SPACE_ID:
+        lines.append("/model — switch AI provider")
+    bot.send_message(message.chat.id, "\n".join(lines))
+>>>>>>> parent of 6e82ef7 (changes)
 
 
 @bot.message_handler(commands=["reset"], func=is_allowed)
@@ -164,7 +181,6 @@ def handle_message(message):
         return
     try:
         with keep_typing(message.chat.id):
-            last_bot_reply[message.from_user.id] = reply  
             reply = ask_ai(message.from_user.id, text)
         send_reply(message, reply)
         _log(message, "out", reply)
@@ -341,6 +357,7 @@ def cmd_recall(message):
         message.chat.id,
         f"📚 Հիշում եմ՝\n\n{text}"
     )
+<<<<<<< HEAD
 
 import re
 
@@ -387,3 +404,5 @@ def cmd_translate(message):
             message.chat.id,
             "Չհաջողվեց թարգմանել։"
         ) 
+=======
+>>>>>>> parent of 6e82ef7 (changes)
