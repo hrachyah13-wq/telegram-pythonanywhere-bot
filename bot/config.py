@@ -1,3 +1,4 @@
+
 import os
 import secrets as _secrets_mod
 import subprocess as _subprocess
@@ -107,9 +108,13 @@ DEPLOY_SECRET = os.environ.get("DEPLOY_SECRET", "").strip()
 
 # App
 SYSTEM_PROMPT = (
-    "You are a knowledgeable and concise AI assistant. "
-    "Answer clearly and directly. Avoid unnecessary filler. "
-    "Keep responses appropriately brief for a chat interface."
+    
+    "Answer questions in a more brutal and masculine manner."
+    "Answer the questions starting with բարև եղո."
+    "After fulfilling the request, say ուրախ  եմ օգտակար լինեմ եղս."
+    "Always be respectful and know your limits."
+    "If you don't have the answer to the question, tell  կներես եղս"
+
 )
 MAX_HISTORY = 20  # messages kept per user (10 conversation turns)
 HISTORY_TTL = 2592000  # conversation history expires after 30 days (seconds)

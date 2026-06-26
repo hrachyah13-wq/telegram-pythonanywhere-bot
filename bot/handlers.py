@@ -7,6 +7,7 @@ from bot.helpers import is_allowed, keep_typing, send_reply, should_respond
 from bot.history import clear_history
 from bot.preferences import get_provider, set_provider
 from bot.rate_limit import is_rate_limited
+from bot.clients import store
 
 # Verbose console logging for local dev and teaching. Enabled by
 # BOT_VERBOSE_LOG=1 (run_local.py sets this automatically). Prints one
@@ -47,10 +48,21 @@ def _log(message, direction: str, text: str) -> None:
 
 @bot.message_handler(commands=["start"], func=is_allowed)
 def cmd_start(message):
-    bot.send_message(
-        message.chat.id,
-        "Hello! I'm your AI assistant. Send me a message to get started.\n\nUse /help to see available commands.",
-    )
+    prompt = """
+    Generate a short welcome message for a student using an AI learning assistant.
+
+    Requirements:
+    - Friendly and natural tone
+    - Explain that the bot teaches step by step
+    - Encourage the user to ask questions
+    - Mention /help briefly
+    - Keep it short
+    """
+
+    response = ask_ai(message.from_user.id, prompt)
+
+    bot.send_message(message.chat.id, response)
+
 
 
 @bot.message_handler(commands=["help"], func=is_allowed)
@@ -60,6 +72,10 @@ def cmd_help(message):
         "/help  — show this message",
         "/reset — clear conversation history",
         "/about — about this bot",
+        "/compliment [name] — receive a compliment",
+        "/կատակ [car] — get a car joke",
+        "/remember [text] — save information",
+        "/recall — show saved information",
     ]
     if HF_SPACE_ID:
         lines.append("/model — switch AI provider")
@@ -152,3 +168,172 @@ def handle_message(message):
         print(f"Error in handle_message: {e}")
         bot.send_message(message.chat.id, "Something went wrong. Please try again.")
         _log(message, "out", f"[error] {e}")
+
+@bot.message_handler(commands=["կատակ"], func=is_allowed)
+def cmd_joke(message):
+    parts = (message.text or "").split(maxsplit=1)
+
+    if len(parts) < 2:
+        bot.send_message(
+            message.chat.id,
+            "Օգտագործում՝ /կատակ BMW\nկամ\n/կատակ Mercedes"
+        )
+        return
+
+    car = parts[1].strip()
+
+    prompt = f"""
+    Create a funny, family-friendly joke about the car: {car}.
+
+    Requirements:
+    - One short joke
+    - Suitable for students
+    - Funny but not offensive
+    - Reply in Armenian
+    """
+
+    try:
+        joke = ask_ai(message.from_user.id, prompt)
+        bot.send_message(message.chat.id, joke)
+    except Exception:
+        bot.send_message(
+            message.chat.id,
+            "Չհաջողվեց ստեղծել կատակ։ Փորձեք նորից։"
+        )
+        @bot.message_handler(commands=["compliment"], func=is_allowed)
+        def cmd_compliment(message):
+            parts = (message.text or "").split(maxsplit=1)
+
+            # Optional name after command
+            target = parts[1].strip() if len(parts) > 1 else "friend"
+
+            prompt = f"""
+            Create a short positive compliment for {target}.
+
+            Requirements:
+            - Friendly and encouraging
+            - Suitable for students
+            - One or two sentences only
+            - Reply in Armenian
+            """
+
+            try:
+                compliment = ask_ai(message.from_user.id, prompt)
+                bot.send_message(message.chat.id, compliment)
+            except Exception:
+                bot.send_message(
+                    message.chat.id,
+                    "Չհաջողվեց ստեղծել գովեստը։ Փորձեք նորից։"
+                )
+@bot.message_handler(commands=["կատակ"], func=is_allowed)
+def cmd_joke(message):
+    parts = (message.text or "").split(maxsplit=1)
+
+    if len(parts) < 2:
+        bot.send_message(
+            message.chat.id,
+            "Օգտագործում՝ /կատակ դպրոց\n/կատակ ծրագրավորում\n/կատակ BMW"
+        )
+        return
+
+    topic = parts[1].strip()
+
+    prompt = f"""
+    Create a funny, family-friendly joke about: {topic}
+
+    Requirements:
+    - One short joke
+    - Suitable for students
+    - Funny but not offensive
+    - Reply in Armenian
+    """
+
+    try:
+        joke = ask_ai(message.from_user.id, prompt)
+        bot.send_message(message.chat.id, joke)
+    except Exception:
+        bot.send_message(
+            message.chat.id,
+            "Չհաջողվեց ստեղծել կատակ։ Փորձեք նորից։"
+        )
+
+def remember(user_id: int, text: str):
+    if store is None:
+        return False
+
+    cur = store.cursor()
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS memories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            memory TEXT
+        )
+    """)
+
+    cur.execute(
+        "INSERT INTO memories (user_id, memory) VALUES (?, ?)",
+        (user_id, text),
+    )
+
+    store.commit()
+    return True
+
+
+def recall(user_id: int):
+    if store is None:
+        return []
+
+    cur = store.cursor()
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS memories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            memory TEXT
+        )
+    """)
+
+    cur.execute(
+        "SELECT memory FROM memories WHERE user_id=?",
+        (user_id,),
+    )
+
+    return [row[0] for row in cur.fetchall()]
+@bot.message_handler(commands=["remember"], func=is_allowed)
+def cmd_remember(message):
+    parts = (message.text or "").split(maxsplit=1)
+
+    if len(parts) < 2:
+        bot.send_message(
+            message.chat.id,
+            "Օգտագործում՝ /remember իմ անունը Արմեն է"
+        )
+        return
+
+    text = parts[1].strip()
+
+    if remember(message.from_user.id, text):
+        bot.send_message(message.chat.id, "✅ Հիշեցի։")
+    else:
+        bot.send_message(message.chat.id, "❌ Չհաջողվեց պահպանել։")
+@bot.message_handler(commands=["recall"], func=is_allowed)
+def cmd_recall(message):
+    memories = recall(message.from_user.id)
+
+    if not memories:
+        bot.send_message(
+            message.chat.id,
+            "Ես դեռ ոչինչ չեմ հիշում։"
+        )
+        return
+
+    text = "\n".join(
+        f"{i+1}. {m}"
+        for i, m in enumerate(memories)
+    )
+
+    bot.send_message(
+        message.chat.id,
+        f"📚 Հիշում եմ՝\n\n{text}"
+    )
