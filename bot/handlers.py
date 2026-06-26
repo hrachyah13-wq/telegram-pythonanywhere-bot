@@ -65,9 +65,7 @@ def cmd_start(message):
 
 
 
-<<<<<<< HEAD
 
-=======
 @bot.message_handler(commands=["help"], func=is_allowed)
 def cmd_help(message):
     lines = [
@@ -83,7 +81,6 @@ def cmd_help(message):
     if HF_SPACE_ID:
         lines.append("/model — switch AI provider")
     bot.send_message(message.chat.id, "\n".join(lines))
->>>>>>> parent of 6e82ef7 (changes)
 
 
 @bot.message_handler(commands=["reset"], func=is_allowed)
@@ -403,6 +400,4 @@ def cmd_translate(message):
         bot.send_message(
             message.chat.id,
             "Չհաջողվեց թարգմանել։"
-        ) 
-=======
->>>>>>> parent of 6e82ef7 (changes)
+        )
