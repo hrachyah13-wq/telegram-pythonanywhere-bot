@@ -66,22 +66,7 @@ def cmd_start(message):
 
 
 
-@bot.message_handler(commands=["help"], func=is_allowed)
-def cmd_help(message):
-    lines = [
-        "/start — welcome message",
-        "/help  — show this message",
-        "/reset — clear conversation history",
-        "/about — about this bot",
-        "/compliment [name] — receive a compliment",
-        "/կատակ [car] — get a car joke",
-        "/remember [text] — save information",
-        "/recall — show saved information",
-        "/translate — translate the last bot reply",
-    ]
-    if HF_SPACE_ID:
-        lines.append("/model — switch AI provider")
-    bot.send_message(message.chat.id, "\n".join(lines))
+
 
 
 @bot.message_handler(commands=["reset"], func=is_allowed)
