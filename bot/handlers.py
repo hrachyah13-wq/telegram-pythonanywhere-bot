@@ -130,6 +130,22 @@ if HF_SPACE_ID:
         else:
             bot.send_message(message.chat.id, "Switched to Main Provider.")
 
+@bot.message_handler(commands=["help"], func=is_allowed)
+def cmd_help(message):
+    bot.send_message(
+        message.chat.id,
+        "\n".join([
+            "📋 Commands:",
+            "/start — սկսում է",
+             "/help — օգնություն",
+             "/remember — հիշում է",
+             "/կատակ- անում է կատակ քո ուզած թեմայով"
+             "/translate - տարգմանում է նախորդ հաղորթագրությունը"
+             "/about — տեղեկություն",
+             "/compliment-անում է կոմպլիմենտ"
+             "/recall — ցույց է տալիս հիշողությունները",
+        ])
+    )
 
 @bot.message_handler(content_types=["text"], func=is_allowed)
 def handle_message(message):
@@ -370,20 +386,4 @@ def cmd_translate(message):
         bot.send_message(
             message.chat.id,
             "Չհաջողվեց թարգմանել։"
-        )
-@bot.message_handler(commands=["help"], func=is_allowed)
-def cmd_help(message):
-    bot.send_message(
-        message.chat.id,
-        "\n".join([
-            "📋 Commands:",
-            "/start — սկսում է",
-             "/help — օգնություն",
-             "/remember — հիշում է",
-             "/կատակ- անում է կատակ քո ուզած թեմայով"
-             "/translate - տարգմանում է նախորդ հաղորթագրությունը"
-             "/about — տեղեկություն",
-             "/compliment-անում է կոմպլիմենտ"
-             "/recall — ցույց է տալիս հիշողությունները",
-        ])
-    )
+        ) 
