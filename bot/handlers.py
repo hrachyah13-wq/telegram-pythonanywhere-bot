@@ -9,6 +9,18 @@ from bot.preferences import get_provider, set_provider
 from bot.rate_limit import is_rate_limited
 from bot.clients import store
 last_bot_reply = {}
+from telebot.types import BotCommand
+
+bot.set_my_commands([
+    BotCommand("start", "Start"),
+    BotCommand("help", "Help"),
+    BotCommand("about", "About"),
+    BotCommand("translate", "Translate last reply"),
+    BotCommand("remember", "Remember something"),
+    BotCommand("recall", "Show memories"),
+    BotCommand("compliment", "Generate compliment"),
+    BotCommand("կատակ", "Generate joke"),
+])
 
 # Verbose console logging for local dev and teaching. Enabled by
 # BOT_VERBOSE_LOG=1 (run_local.py sets this automatically). Prints one
@@ -148,8 +160,9 @@ def handle_message(message):
         return
     try:
         with keep_typing(message.chat.id):
-            last_bot_reply[message.from_user.id] = reply  
-            reply = ask_ai(message.from_user.id, text)
+           reply = ask_ai(message.from_user.id, text)
+           last_bot_reply[message.from_user.id] = reply
+          
         send_reply(message, reply)
         _log(message, "out", reply)
     except Exception as e:
@@ -157,37 +170,7 @@ def handle_message(message):
         bot.send_message(message.chat.id, "Something went wrong. Please try again.")
         _log(message, "out", f"[error] {e}")
 
-@bot.message_handler(commands=["կատակ"], func=is_allowed)
-def cmd_joke(message):
-    parts = (message.text or "").split(maxsplit=1)
-
-    if len(parts) < 2:
-        bot.send_message(
-            message.chat.id,
-            "Օգտագործում՝ /կատակ BMW\nկամ\n/կատակ Mercedes"
-        )
-        return
-
-    car = parts[1].strip()
-
-    prompt = f"""
-    Create a funny, family-friendly joke about the car: {car}.
-
-    Requirements:
-    - One short joke
-    - Suitable for students
-    - Funny but not offensive
-    - Reply in Armenian
-    """
-
-    try:
-        joke = ask_ai(message.from_user.id, prompt)
-        bot.send_message(message.chat.id, joke)
-    except Exception:
-        bot.send_message(
-            message.chat.id,
-            "Չհաջողվեց ստեղծել կատակ։ Փորձեք նորից։"
-        )
+        
         @bot.message_handler(commands=["compliment"], func=is_allowed)
         def cmd_compliment(message):
             parts = (message.text or "").split(maxsplit=1)
@@ -371,3 +354,22 @@ def cmd_translate(message):
             message.chat.id,
             "Չհաջողվեց թարգմանել։"
         )
+@bot.message_handler(commands=["help"], func=is_allowed)
+def cmd_help(message):
+    bot.send_message(
+        message.chat.id,
+        """
+Հասանելի հրամաններ
+
+/start
+/help
+/about
+/reset
+/model
+/կատակ
+/compliment
+/remember
+/recall
+/translate
+"""
+    )
