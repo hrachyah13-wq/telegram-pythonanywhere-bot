@@ -8,6 +8,7 @@ from bot.history import clear_history
 from bot.preferences import get_provider, set_provider
 from bot.rate_limit import is_rate_limited
 from bot.clients import store
+last_bot_reply = {}
 
 # Verbose console logging for local dev and teaching. Enabled by
 # BOT_VERBOSE_LOG=1 (run_local.py sets this automatically). Prints one
@@ -76,6 +77,7 @@ def cmd_help(message):
         "/կատակ [car] — get a car joke",
         "/remember [text] — save information",
         "/recall — show saved information",
+        "/translate — translate the last bot reply",
     ]
     if HF_SPACE_ID:
         lines.append("/model — switch AI provider")
@@ -161,6 +163,7 @@ def handle_message(message):
         return
     try:
         with keep_typing(message.chat.id):
+            last_bot_reply[message.from_user.id] = reply  
             reply = ask_ai(message.from_user.id, text)
         send_reply(message, reply)
         _log(message, "out", reply)
@@ -337,3 +340,49 @@ def cmd_recall(message):
         message.chat.id,
         f"📚 Հիշում եմ՝\n\n{text}"
     )
+
+import re
+
+@bot.message_handler(commands=["translate"], func=is_allowed)
+def cmd_translate(message):
+
+    reply = last_bot_reply.get(message.from_user.id)
+
+    if not reply:
+        bot.send_message(
+            message.chat.id,
+            "Թարգմանելու համար նախ ստացեք բոտից պատասխան։"
+        )
+        return
+
+    # Detect Armenian
+    if re.search(r"[Ա-Ֆա-ֆ]", reply):
+        target = "English"
+    else:
+        target = "Armenian"
+
+    prompt = f"""
+    Translate the following text into {target}.
+
+    Requirements:
+    - Preserve meaning.
+    - Do not explain.
+    - Return only the translation.
+
+    Text:
+    {reply}
+    """
+
+    try:
+        translated = ask_ai(message.from_user.id, prompt)
+
+        # Save translated version as latest reply too
+        last_bot_reply[message.from_user.id] = translated
+
+        bot.send_message(message.chat.id, translated)
+
+    except Exception:
+        bot.send_message(
+            message.chat.id,
+            "Չհաջողվեց թարգմանել։"
+        )
