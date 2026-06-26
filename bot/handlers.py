@@ -8,6 +8,7 @@ from bot.history import clear_history
 from bot.preferences import get_provider, set_provider
 from bot.rate_limit import is_rate_limited
 from bot.clients import store
+last_bot_reply = {}
 
 # Verbose console logging for local dev and teaching. Enabled by
 # BOT_VERBOSE_LOG=1 (run_local.py sets this automatically). Prints one
@@ -65,7 +66,6 @@ def cmd_start(message):
 
 
 
-
 @bot.message_handler(commands=["help"], func=is_allowed)
 def cmd_help(message):
     lines = [
@@ -77,6 +77,7 @@ def cmd_help(message):
         "/կատակ [car] — get a car joke",
         "/remember [text] — save information",
         "/recall — show saved information",
+        "/translate — translate the last bot reply",
     ]
     if HF_SPACE_ID:
         lines.append("/model — switch AI provider")
@@ -144,22 +145,6 @@ if HF_SPACE_ID:
         else:
             bot.send_message(message.chat.id, "Switched to Main Provider.")
 
-@bot.message_handler(commands=["help"], func=is_allowed)
-def cmd_help(message):
-    bot.send_message(
-        message.chat.id,
-        "\n".join([
-            "📋 Commands:",
-            "/start — սկսում է",
-             "/help — օգնություն",
-             "/remember — հիշում է",
-             "/կատակ- անում է կատակ քո ուզած թեմայով"
-             "/translate - տարգմանում է նախորդ հաղորթագրությունը"
-             "/about — տեղեկություն",
-             "/compliment-անում է կոմպլիմենտ"
-             "/recall — ցույց է տալիս հիշողությունները",
-        ])
-    )
 
 @bot.message_handler(content_types=["text"], func=is_allowed)
 def handle_message(message):
@@ -178,6 +163,7 @@ def handle_message(message):
         return
     try:
         with keep_typing(message.chat.id):
+            last_bot_reply[message.from_user.id] = reply  
             reply = ask_ai(message.from_user.id, text)
         send_reply(message, reply)
         _log(message, "out", reply)
@@ -354,7 +340,6 @@ def cmd_recall(message):
         message.chat.id,
         f"📚 Հիշում եմ՝\n\n{text}"
     )
-<<<<<<< HEAD
 
 import re
 
